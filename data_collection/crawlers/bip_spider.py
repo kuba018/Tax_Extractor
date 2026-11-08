@@ -5,6 +5,8 @@ from urllib.parse import urldefrag, urlsplit
 import scrapy
 from scrapy.http import HtmlResponse
 
+from data_management.raw_store import save_raw
+
 
 class BipSpider(scrapy.Spider):
     name = "bip_lubaczow"
@@ -33,6 +35,12 @@ class BipSpider(scrapy.Spider):
                 response.url
             )
             return
+        raw_path, checksum = save_raw(
+            data=response.body,
+            municipality="lubaczow",
+            resource_type="html"
+        )
+        
 
         links = []
         follow_urls = []
@@ -98,6 +106,8 @@ class BipSpider(scrapy.Spider):
             "teryt": "1809011",
             "resource_type": "html",
             "url": response.url,
+            "raw_path": raw_path,
+            "sha256": checksum,
             "title": response.css(
                 "title::text"
             ).get(default="").strip(),
